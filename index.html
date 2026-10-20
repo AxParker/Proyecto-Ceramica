@@ -277,6 +277,23 @@ img { max-width: 100%; display: block; }
   .social-card:hover .card-glow { transform: none; }
 }
 
+/* Táctil: el toque dispara la misma animación que el hover (la clase la pone el script) */
+.social-card.is-pressed {
+  --lift: -6px;
+  border-color: var(--accent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 75%),
+    #12315a;
+}
+.social-card.is-pressed .card-glow { opacity: .3; transform: scale(1.5); }
+.social-card.is-pressed .arrow-icon { color: #0b1522; background: var(--accent); border-color: var(--accent); transform: rotate(45deg); }
+.social-card.is-pressed .brand-symbol { transform: scale(1.09) rotate(-4deg); }
+.social-card.is-pressed .visit-btn { background: #ff9340; box-shadow: 0 14px 28px rgba(255,122,26,.4); gap: 16px; }
+
+/* Toda la tarjeta (incluido el icono) es clicable */
+.social-card { cursor: pointer; }
+.brand-symbol, .arrow-icon, .card-glow { pointer-events: none; }
+
 .instagram { --accent: #ff6fa5; }
 .facebook  { --accent: #5b9dff; }
 .tiktok    { --accent: #25f4ee; }
@@ -833,6 +850,29 @@ if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
     });
   });
 }
+
+/* =====================================
+   TARJETAS DE REDES: ANIMACIÓN AL TOCAR Y CLIC EN TODA LA TARJETA
+===================================== */
+document.querySelectorAll(".social-card").forEach(card => {
+  let timer;
+
+  // Animación al tocar (móvil/tablet): reproduce el efecto hover unos instantes
+  card.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse") return;
+    clearTimeout(timer);
+    card.classList.add("is-pressed");
+    timer = setTimeout(() => card.classList.remove("is-pressed"), 650);
+  });
+  card.addEventListener("pointercancel", () => card.classList.remove("is-pressed"));
+
+  // Clic en el icono o en cualquier parte de la tarjeta = clic en su botón
+  card.addEventListener("click", e => {
+    if (e.target.closest("a, button")) return;      // el botón/enlace ya funciona solo
+    const link = card.querySelector("a.visit-btn");
+    if (link && link.getAttribute("href") && link.getAttribute("href") !== "#") link.click();
+  });
+});
 
 /* =====================================
    REVEAL AL LLEGAR CON EL SCROLL
