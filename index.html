@@ -418,6 +418,7 @@ img { max-width: 100%; display: block; }
   .map-box { min-height: 340px; }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -427,6 +428,36 @@ img { max-width: 100%; display: block; }
   }
   .social-card { opacity: 1; translate: none; }
   .reveal { opacity: 1; transform: none; }
+}
+
+/* LOGO GRANDE Y CENTRADO EN MOVILES */
+@media screen and (max-width: 600px) {
+  .topbar {
+    padding: 18px 5vw;
+  }
+
+  .topbar .topbar-inner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .topbar .logo-plate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .topbar .logo-plate img {
+    display: block;
+    width: 280px;
+    max-width: 80vw;
+    height: auto;
+    margin: 0 auto;
+  }
 }
 </style>
 </head>
