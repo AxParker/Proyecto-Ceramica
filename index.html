@@ -97,26 +97,6 @@ img { max-width: 100%; display: block; }
     linear-gradient(145deg, #0e2038, #07121f 75%);
 }
 
-/* FOTO DE FONDO (configurable en el script: PHOTOS.hero) */
-.hero-photo {
-  position: absolute;
-  inset: 0;
-  z-index: -3;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-.hero-photo.loaded { opacity: 1; }
-.hero-photo-shade {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background:
-    linear-gradient(180deg, rgba(7,18,31,.78) 0%, rgba(7,18,31,.62) 40%, rgba(7,18,31,.94) 100%),
-    radial-gradient(ellipse at 20% 30%, rgba(10,26,48,.55), transparent 70%);
-}
-
 /* Retícula tipo azulejo */
 .social-section::before,
 .grid-bg::before {
@@ -348,24 +328,10 @@ img { max-width: 100%; display: block; }
 }
 .slogan small { display: block; margin-bottom: 8px; font-family: var(--font-body); font-size: 10px; letter-spacing: .22em; color: var(--orange); }
 
-/* MARCO DE FOTO (configurable en el script: PHOTOS.about) */
-.photo-frame {
-  position: relative;
-  aspect-ratio: 4 / 3.2;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  overflow: hidden;
-  background:
-    repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 14px, transparent 14px 28px),
-    #0f2748;
-  box-shadow: 0 30px 60px rgba(0,0,0,.45);
-}
-.photo-frame::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(255,255,255,.22); border-radius: 3px; pointer-events: none; }
-.photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+
 .photo-placeholder { position: absolute; inset: 0; display: grid; place-content: center; gap: 8px; padding: 24px; text-align: center; color: #9db0c6; font-size: 13px; }
 .photo-placeholder svg { margin: 0 auto; width: 48px; height: 48px; color: var(--orange); }
 .photo-placeholder strong { color: var(--white); font-size: 15px; }
-.photo-frame.has-photo .photo-placeholder { display: none; }
 
 /* ---------- Visítanos ---------- */
 .visit { display: grid; grid-template-columns: .9fr 1.1fr; gap: 24px; align-items: stretch; }
@@ -401,6 +367,55 @@ img { max-width: 100%; display: block; }
 }
 .map-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; }
 .map-box .photo-placeholder { z-index: 0; }
+
+/* ---------- Marcas ---------- */
+.brands-panel {
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgba(255,255,255,.07), transparent 70%), rgba(14,34,60,.8);
+  box-shadow: 0 30px 60px rgba(0,0,0,.4);
+}
+.brands-title { margin: 14px 0 0; font-family: var(--font-display); font-size: clamp(28px, 3.2vw, 38px); line-height: 1; text-transform: uppercase; }
+.brands-grid { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.brand-tile {
+  aspect-ratio: 3 / 2;
+  display: grid; place-items: center;
+  padding: 14px;
+  background: #fff;
+  border-radius: 5px;
+  transition: transform .3s, box-shadow .3s;
+}
+.brand-tile:hover { transform: translateY(-4px); box-shadow: 0 14px 26px rgba(0,0,0,.35); }
+.brand-tile img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.brand-tile.empty {
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 12px, transparent 12px 24px), #0f2748;
+  border: 1px dashed rgba(255,255,255,.28);
+  color: #9db0c6; font-size: 12px; text-align: center; line-height: 1.5;
+}
+.brand-tile.empty strong { color: var(--white); font-size: 13px; }
+
+/* ---------- Pagos ---------- */
+.payments {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 14px 20px;
+  width: fit-content; max-width: 100%;
+  margin-top: 34px; padding: 14px 18px;
+  border: 1px solid var(--line); border-left: 3px solid var(--orange); border-radius: 5px;
+  background: rgba(14,34,60,.6);
+  backdrop-filter: blur(4px);
+}
+.payments-label { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #dbe5f0; }
+.pay-logos { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; }
+.pay-chip {
+  height: 44px; padding: 0 14px;
+  display: grid; place-items: center;
+  background: #fff; border-radius: 6px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+  transition: transform .3s;
+}
+.pay-chip:hover { transform: translateY(-3px); }
+.pay-chip svg { height: 26px; width: auto; display: block; }
 
 /* ---------- Pie ---------- */
 .site-footer { padding: 40px 6vw 36px; background: #050d17; border-top: 1px solid var(--line); }
@@ -450,6 +465,11 @@ img { max-width: 100%; display: block; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
   .footer-note { text-align: left; }
   .map-box { min-height: 340px; }
+  .payments { width: 100%; gap: 10px; padding: 12px 14px; margin-top: 26px; }
+  .payments-label { width: 100%; font-size: 10px; }
+  .pay-logos { width: 100%; }
+  .pay-chip { flex: 1; padding: 0 8px; height: 42px; }
+  .brands-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -488,9 +508,6 @@ img { max-width: 100%; display: block; }
 
 <!-- ============ REDES SOCIALES (SECCIÓN PRINCIPAL) ============ -->
 <section class="social-section" id="inicio">
-  <!-- Foto del local como fondo: se configura en PHOTOS.hero (script) -->
-  <div class="hero-photo" id="heroPhoto" aria-hidden="true"></div>
-  <div class="hero-photo-shade" aria-hidden="true"></div>
   <div class="ambient one"></div>
   <div class="ambient two"></div>
 
@@ -511,6 +528,36 @@ img { max-width: 100%; display: block; }
       </p>
       <p class="social-invite">Elige tu plataforma favorita y empieza a explorar.</p>
     </header>
+
+    <!-- Formas de pago -->
+    <div class="payments reveal" role="group" aria-label="Formas de pago">
+      <span class="payments-label">Aceptamos pagos con tarjeta</span>
+      <ul class="pay-logos">
+        <li class="pay-chip">
+          <svg viewBox="0 0 66 24" role="img" aria-label="Visa">
+            <text x="33" y="19.5" text-anchor="middle" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-weight="900" font-style="italic" font-size="25" letter-spacing="-1" fill="#1a1f71">VISA</text>
+          </svg>
+        </li>
+        <li class="pay-chip">
+          <svg viewBox="0 0 48 30" role="img" aria-label="Mastercard">
+            <circle cx="18" cy="15" r="13" fill="#eb001b"/>
+            <circle cx="30" cy="15" r="13" fill="#f79e1b"/>
+            <path d="M24 3.47A13 13 0 0 1 24 26.53A13 13 0 0 1 24 3.47Z" fill="#ff5f00"/>
+          </svg>
+        </li>
+        <li class="pay-chip">
+          <svg viewBox="0 0 84 30" role="img" aria-label="NFC, pago sin contacto">
+            <g fill="none" stroke="#1b1f27" stroke-width="2.8" stroke-linecap="round">
+              <path d="M7 11c1.6 2.6 1.6 5.4 0 8"/>
+              <path d="M13 8c3.2 4.6 3.2 9.4 0 14"/>
+              <path d="M19 5c4.8 6.6 4.8 13.4 0 20"/>
+              <path d="M25 2c6.4 8.6 6.4 17.4 0 26"/>
+            </g>
+            <text x="35" y="22" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="19" letter-spacing=".5" fill="#1b1f27">NFC</text>
+          </svg>
+        </li>
+      </ul>
+    </div>
 
     <h2 class="visually-hidden">Nuestras redes sociales</h2>
 
@@ -660,14 +707,12 @@ img { max-width: 100%; display: block; }
       <div class="slogan"><small>Nuestro lema</small>Estilo y calidad que perdura</div>
     </div>
 
-    <!-- Foto del lugar: se configura en PHOTOS.about (script) -->
-    <figure class="photo-frame reveal" id="aboutPhoto" style="margin:0">
-      <div class="photo-placeholder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-5-9 8"/></svg>
-        <strong>Foto del local</strong>
-        <span>Pendiente de colocación</span>
-      </div>
-    </figure>
+    <!-- Marcas que trabajan con nosotros: se configuran en BRANDS (script) -->
+    <div class="brands-panel reveal">
+      <div class="eyebrow">Nuestras marcas</div>
+      <h3 class="brands-title">Marcas que trabajan con nosotros</h3>
+      <ul class="brands-grid" id="brandsGrid"></ul>
+    </div>
   </div>
 </section>
 
@@ -738,12 +783,19 @@ const SOCIAL_LINKS = {
   tiktok:    "https://www.tiktok.com/@ceramicasa2026?_r=1&_t=ZS-9AhueuQ8Oou"
 };
 
-/* 2) Fotos del local (déjalas en la carpeta assets).
-   Escribe el nombre de tu archivo; si queda vacío, se muestra el marco de ejemplo. */
-const PHOTOS = {
-  hero:  "",   // fondo de la parte superior. Ej: "assets/fachada.jpg"
-  about: ""    // marco en «Quiénes somos».   Ej: "assets/local.jpg"
-};
+/* 2) Marcas que trabajan con Ceramicasa (son 6).
+   Coloca los logos en assets/marcas/ y escribe aquí el nombre de cada archivo.
+   Si "logo" queda vacío se muestra un espacio de ejemplo. */
+
+const BRANDS = [
+  { name: "Marca 1", logo: "assets/marcas/logo1.png" },
+  { name: "Marca 2", logo: "assets/marcas/logo2.png" },
+  { name: "Marca 3", logo: "assets/marcas/logo3.png" },
+  { name: "Marca 4", logo: "assets/marcas/logo4.png" },
+  { name: "Marca 5", logo: "assets/marcas/logo5.png" },
+  { name: "Marca 6", logo: "assets/marcas/logo6.png" }
+];
+
 
 /* 3) Ubicaciones */
 const LOCATIONS = {
@@ -768,27 +820,32 @@ document.querySelectorAll("[data-social]").forEach(link => {
 });
 
 /* =====================================
-   FOTOS (solo se muestran si el archivo carga)
+   MARCAS
 ===================================== */
-function loadPhoto(src, onOk) {
-  if (!src) return;
-  const img = new Image();
-  img.onload = () => onOk(img);
-  img.src = src;
-}
+(function renderBrands() {
+  const grid = document.getElementById("brandsGrid");
+  BRANDS.forEach((brand, i) => {
+    const li = document.createElement("li");
+    li.className = "brand-tile";
 
-loadPhoto(PHOTOS.hero, () => {
-  const hero = document.getElementById("heroPhoto");
-  hero.style.backgroundImage = `url("${PHOTOS.hero}")`;
-  hero.classList.add("loaded");
-});
+    const showPlaceholder = () => {
+      li.className = "brand-tile empty";
+      li.innerHTML = "<span><strong>" + (brand.name || "Marca " + (i + 1)) + "</strong><br>Logo aquí</span>";
+    };
 
-loadPhoto(PHOTOS.about, img => {
-  const frame = document.getElementById("aboutPhoto");
-  img.alt = "Sala de ventas de Ceramicasa";
-  frame.appendChild(img);
-  frame.classList.add("has-photo");
-});
+    if (brand.logo) {
+      const img = document.createElement("img");
+      img.src = brand.logo;
+      img.alt = brand.name;
+      img.loading = "lazy";
+      img.onerror = showPlaceholder;
+      li.appendChild(img);
+    } else {
+      showPlaceholder();
+    }
+    grid.appendChild(li);
+  });
+})();
 
 /* =====================================
    MAPA Y «CÓMO LLEGAR»
