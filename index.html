@@ -341,7 +341,13 @@ img { max-width: 100%; display: block; }
   padding: 24px; border: 1px solid var(--line); border-top: 3px solid var(--orange); border-radius: 5px;
   background: linear-gradient(145deg, rgba(255,255,255,.07), transparent 70%), rgba(14,34,60,.8);
 }
+.info-card { position: relative; cursor: pointer; transition: border-color .3s, box-shadow .3s, transform .8s cubic-bezier(.2,.8,.2,1), opacity .8s ease; }
 .info-card.second { border-top-color: var(--red); }
+.info-card.active { border-color: rgba(255,122,26,.55); box-shadow: 0 0 0 1px rgba(255,122,26,.35), 0 18px 40px rgba(0,0,0,.35); }
+.info-card.second.active { border-color: rgba(245,17,29,.6); box-shadow: 0 0 0 1px rgba(245,17,29,.4), 0 18px 40px rgba(0,0,0,.35); }
+.map-hint { position: absolute; top: 18px; right: 18px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9db0c6; transition: color .3s, border-color .3s, background .3s; }
+.info-card.active .map-hint { color: #1a0d00; background: var(--orange); border-color: var(--orange); }
+.info-card.second.active .map-hint { background: var(--red); border-color: var(--red); color: #fff; }
 .info-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 28px; text-transform: uppercase; }
 .info-card .label { margin: 0 0 10px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--orange); font-weight: 700; }
 .info-card address { font-style: normal; color: #c0cbd8; font-size: 15px; line-height: 1.7; }
@@ -410,14 +416,68 @@ img { max-width: 100%; display: block; }
 .payments-label { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #dbe5f0; }
 .pay-logos { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; }
 .pay-chip {
-  height: 44px; padding: 0 14px;
-  display: grid; place-items: center;
+  position: relative;
+  height: 44px;
   background: #fff; border-radius: 6px;
   box-shadow: 0 6px 14px rgba(0,0,0,.25);
   transition: transform .3s;
 }
-.pay-chip:hover { transform: translateY(-3px); }
-.pay-chip svg { height: 26px; width: auto; display: block; }
+.pay-btn {
+  display: grid; place-items: center;
+  width: 100%; height: 100%; padding: 0 14px;
+  background: none; border: 0; border-radius: 6px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.pay-chip:not(:has(.pay-btn:focus-visible)) .pay-btn:focus { outline: none; }
+
+/* Animación al hacer clic: igual que una terminal POS al cobrar
+   1) "procesando" (el logo reacciona)  2) visto de pago aprobado  3) vuelve el logo.
+   La clase .is-anim la pone el script. */
+.pay-btn { position: relative; }
+.pay-btn .ok {
+  position: absolute; left: 50%; top: 50%;
+  width: 30px; height: 30px; margin: -15px 0 0 -15px;
+  opacity: 0; transform: scale(0);
+  pointer-events: none; overflow: visible;
+}
+.ok-c { fill: #1fb86a; }
+.pay-visa .ok-c { fill: #1a1f71; }
+.ok-p { stroke-dasharray: 22; stroke-dashoffset: 22; }
+
+.pay-chip::after {
+  content: ""; position: absolute; inset: 0; border-radius: 6px;
+  border: 2px solid #1fb86a; opacity: 0; pointer-events: none;
+}
+.pay-visa::after { border-color: #1a1f71; }
+.pay-chip.is-anim { animation: payPress .35s ease-out; }
+.pay-chip.is-anim::after { animation: payRing 2.4s ease-out; }
+.pay-chip.is-anim .logo { animation: logoSwap 2.4s ease-in-out; }
+.pay-chip.is-anim .ok   { animation: okShow 2.4s cubic-bezier(.3,1.5,.5,1); }
+.pay-chip.is-anim .ok-p { animation: okDraw 2.4s ease-out; }
+
+@keyframes payPress { 0% { transform: scale(1); } 40% { transform: scale(.94); } 100% { transform: scale(1); } }
+@keyframes payRing  { 0%, 40% { opacity: 0; transform: scale(1); } 46% { opacity: .9; } 100% { opacity: 0; transform: scale(1.45); } }
+@keyframes logoSwap { 0%, 36% { opacity: 1; transform: scale(1); } 44%, 84% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes okShow   { 0%, 38% { opacity: 0; transform: scale(0); } 48% { opacity: 1; transform: scale(1.12); } 54%, 82% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.6); } }
+@keyframes okDraw   { 0%, 46% { stroke-dashoffset: 22; } 64%, 100% { stroke-dashoffset: 0; } }
+
+/* Fase "procesando" de cada logo */
+/* Visa: late mientras procesa */
+.pay-visa.is-anim .visa-text { animation: visaBeat 1s ease-in-out; transform-box: fill-box; transform-origin: center; }
+@keyframes visaBeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.12); } 50% { transform: scale(1); } 75% { transform: scale(1.12); } }
+/* Mastercard: los círculos se acercan y se funden */
+.pay-mc.is-anim .mc-l { animation: mcL 2.4s ease-in-out; }
+.pay-mc.is-anim .mc-r { animation: mcR 2.4s ease-in-out; }
+@keyframes mcL { 0%, 100% { transform: translateX(0); } 35%, 45% { transform: translateX(5px); } 85% { transform: translateX(0); } }
+@keyframes mcR { 0%, 100% { transform: translateX(0); } 35%, 45% { transform: translateX(-5px); } 85% { transform: translateX(0); } }
+/* NFC: las ondas emiten una tras otra, como el contactless de la terminal */
+.pay-nfc.is-anim .logo path { animation: nfcEmit .5s ease-in-out 2; }
+.pay-nfc.is-anim .nfc-2 { animation-delay: .08s; }
+.pay-nfc.is-anim .nfc-3 { animation-delay: .16s; }
+.pay-nfc.is-anim .nfc-4 { animation-delay: .24s; }
+@keyframes nfcEmit { 0%, 100% { opacity: 1; } 40% { opacity: .12; } 70% { opacity: 1; } }
+.pay-chip:hover:not(.is-anim) { transform: translateY(-3px); }
+.pay-chip svg { height: 26px; width: auto; display: block; overflow: visible; }
 
 /* ---------- Pie ---------- */
 .site-footer { padding: 40px 6vw 36px; background: #050d17; border-top: 1px solid var(--line); }
@@ -470,7 +530,8 @@ img { max-width: 100%; display: block; }
   .payments { width: 100%; gap: 10px; padding: 12px 14px; margin-top: 26px; }
   .payments-label { width: 100%; font-size: 10px; }
   .pay-logos { width: 100%; }
-  .pay-chip { flex: 1; padding: 0 8px; height: 42px; }
+  .pay-chip { flex: 1; height: 42px; }
+  .pay-btn { padding: 0 8px; }
   .brands-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -531,31 +592,49 @@ img { max-width: 100%; display: block; }
     </header>
 
     <!-- Formas de pago -->
+    <span class="visually-hidden" id="payStatus" aria-live="polite"></span>
     <div class="payments reveal" role="group" aria-label="Formas de pago">
       <span class="payments-label">Aceptamos pagos con tarjeta</span>
       <ul class="pay-logos">
-        <li class="pay-chip">
-          <svg viewBox="0 0 66 24" role="img" aria-label="Visa">
-            <text x="33" y="19.5" text-anchor="middle" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-weight="900" font-style="italic" font-size="25" letter-spacing="-1" fill="#1a1f71">VISA</text>
-          </svg>
+        <li class="pay-chip pay-visa">
+          <button type="button" class="pay-btn" aria-label="Visa">
+            <svg class="logo" viewBox="0 0 66 24" aria-hidden="true" focusable="false">
+              <text class="visa-text" x="33" y="19.5" text-anchor="middle" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-weight="900" font-style="italic" font-size="25" letter-spacing="-1" fill="#1a1f71">VISA</text>
+            </svg>
+            <svg class="ok" viewBox="0 0 30 30" aria-hidden="true" focusable="false">
+              <circle class="ok-c" cx="15" cy="15" r="14"/>
+              <path class="ok-p" d="M8.5 15.5l4.5 4.5 8.5-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </li>
-        <li class="pay-chip">
-          <svg viewBox="0 0 48 30" role="img" aria-label="Mastercard">
-            <circle cx="18" cy="15" r="13" fill="#eb001b"/>
-            <circle cx="30" cy="15" r="13" fill="#f79e1b"/>
-            <path d="M24 3.47A13 13 0 0 1 24 26.53A13 13 0 0 1 24 3.47Z" fill="#ff5f00"/>
-          </svg>
+        <li class="pay-chip pay-mc">
+          <button type="button" class="pay-btn" aria-label="Mastercard">
+            <svg class="logo" viewBox="0 0 48 30" aria-hidden="true" focusable="false">
+              <circle class="mc-l" cx="18" cy="15" r="13" fill="#eb001b"/>
+              <circle class="mc-r" cx="30" cy="15" r="13" fill="#f79e1b"/>
+              <path class="mc-o" d="M24 3.47A13 13 0 0 1 24 26.53A13 13 0 0 1 24 3.47Z" fill="#ff5f00"/>
+            </svg>
+            <svg class="ok" viewBox="0 0 30 30" aria-hidden="true" focusable="false">
+              <circle class="ok-c" cx="15" cy="15" r="14"/>
+              <path class="ok-p" d="M8.5 15.5l4.5 4.5 8.5-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </li>
-        <li class="pay-chip">
-          <svg viewBox="0 0 84 30" role="img" aria-label="NFC, pago sin contacto">
-            <g fill="none" stroke="#1b1f27" stroke-width="2.8" stroke-linecap="round">
-              <path d="M7 11c1.6 2.6 1.6 5.4 0 8"/>
-              <path d="M13 8c3.2 4.6 3.2 9.4 0 14"/>
-              <path d="M19 5c4.8 6.6 4.8 13.4 0 20"/>
-              <path d="M25 2c6.4 8.6 6.4 17.4 0 26"/>
-            </g>
-            <text x="35" y="22" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="19" letter-spacing=".5" fill="#1b1f27">NFC</text>
-          </svg>
+        <li class="pay-chip pay-nfc">
+          <button type="button" class="pay-btn" aria-label="NFC, pago sin contacto">
+            <svg class="logo" viewBox="4 0 30 30" aria-hidden="true" focusable="false">
+              <g fill="none" stroke="#1b1f27" stroke-width="2.8" stroke-linecap="round">
+                <path class="nfc-1" d="M7 11c1.6 2.6 1.6 5.4 0 8"/>
+                <path class="nfc-2" d="M13 8c3.2 4.6 3.2 9.4 0 14"/>
+                <path class="nfc-3" d="M19 5c4.8 6.6 4.8 13.4 0 20"/>
+                <path class="nfc-4" d="M25 2c6.4 8.6 6.4 17.4 0 26"/>
+              </g>
+            </svg>
+            <svg class="ok" viewBox="0 0 30 30" aria-hidden="true" focusable="false">
+              <circle class="ok-c" cx="15" cy="15" r="14"/>
+              <path class="ok-p" d="M8.5 15.5l4.5 4.5 8.5-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </li>
       </ul>
     </div>
@@ -729,7 +808,8 @@ img { max-width: 100%; display: block; }
 
     <div class="visit">
       <div class="info-stack">
-        <article class="info-card reveal">
+        <article class="info-card reveal" data-loc="main" tabindex="0" aria-controls="mapBox">
+          <span class="map-hint" aria-live="polite"></span>
           <p class="label">Sala de ventas principal</p>
           <h3>Tecún Umán</h3>
           <address>5 avenida 9-050, zona 2,<br>Tecún Umán, Ayutla,<br>San Marcos, Guatemala.</address>
@@ -737,11 +817,13 @@ img { max-width: 100%; display: block; }
           <a class="btn" id="directionsBtn" href="#" target="_blank" rel="noopener noreferrer">Cómo llegar ↗</a>
         </article>
 
-        <article class="info-card second reveal">
+        <article class="info-card second reveal" data-loc="catarina" tabindex="0" aria-controls="mapBox">
+          <span class="map-hint" aria-live="polite"></span>
           <p class="label">Nueva sala de ventas · 2026</p>
           <h3>Catarina, San Marcos</h3>
-          <address id="catarinaAddress">Próximamente</address>
-          <a class="btn" id="catarinaBtn" href="#" aria-disabled="true" target="_blank" rel="noopener noreferrer">Cómo llegar ↗</a>
+          <address id="catarinaAddress">2 avenida, zona 1,<br>Catarina, San Marcos, Guatemala.</address>
+          <a class="phone" href="tel:+50252158232" aria-label="Llamar al 5215-8232">5215-8232</a><br>
+          <a class="btn" id="catarinaBtn" href="#" target="_blank" rel="noopener noreferrer">Cómo llegar ↗</a>
         </article>
       </div>
 
@@ -803,9 +885,8 @@ const LOCATIONS = {
   main: "5 avenida 9-050, zona 2, Tecún Umán, Ayutla, San Marcos, Guatemala",
   /* Coordenadas exactas de la sala de Tecún Umán (se usan en el mapa y en «Cómo llegar») */
   mainCoords: "14.675794966647041,-92.13874835402962",
-  /* Catarina: aún sin dirección (se muestra «Próximamente»). Cuando la tengas,
-     escríbela aquí y se activará su botón «Cómo llegar». */
-  catarina: ""
+  /* Coordenadas exactas de la sala de Catarina (14°50'53.1"N 92°04'43.2"W) */
+  catarinaCoords: "14.848083,-92.078667"
 };
 
 /* Opcional: URL de «Insertar un mapa» de Google Maps. Si queda vacío,
@@ -856,23 +937,54 @@ const mapsSearch = q => "https://www.google.com/maps/search/?api=1&query=" + enc
 document.getElementById("directionsBtn").href =
   "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(LOCATIONS.mainCoords);
 
-(function setupMap() {
-  const src = MAP_EMBED_URL ||
-    "https://www.google.com/maps?q=" + encodeURIComponent(LOCATIONS.mainCoords) + "&z=17&output=embed";
-  const iframe = document.createElement("iframe");
-  iframe.src = src;
-  iframe.title = "Mapa de la sala de ventas de Ceramicasa en Tecún Umán";
-  iframe.loading = "lazy";
-  iframe.referrerPolicy = "no-referrer-when-downgrade";
-  document.getElementById("mapBox").appendChild(iframe);
-})();
+/* Mapa: muestra la sala elegida (clic en su tarjeta). El botón abre la app de mapas. */
+const mapBox = document.getElementById("mapBox");
+const mapFrame = document.createElement("iframe");
+mapFrame.loading = "lazy";
+mapFrame.referrerPolicy = "no-referrer-when-downgrade";
+mapBox.appendChild(mapFrame);
 
-if (LOCATIONS.catarina) {
-  const btn = document.getElementById("catarinaBtn");
-  document.getElementById("catarinaAddress").textContent = LOCATIONS.catarina;
-  btn.href = mapsSearch(LOCATIONS.catarina);
-  btn.removeAttribute("aria-disabled");
+const MAP_TITLES = {
+  main: "Mapa de la sala de ventas de Ceramicasa en Tecún Umán",
+  catarina: "Mapa de la sala de ventas de Ceramicasa en Catarina"
+};
+
+function showOnMap(key, scroll) {
+  const coords = LOCATIONS[key + "Coords"];
+  if (!coords) return;
+  mapFrame.src = (key === "main" && MAP_EMBED_URL) ||
+    "https://www.google.com/maps?q=" + encodeURIComponent(coords) + "&z=17&output=embed";
+  mapFrame.title = MAP_TITLES[key];
+
+  document.querySelectorAll(".info-card[data-loc]").forEach(card => {
+    const active = card.dataset.loc === key;
+    card.classList.toggle("active", active);
+    card.querySelector(".map-hint").textContent = active ? "En el mapa" : "Ver en el mapa";
+  });
+
+  // En pantallas pequeñas el mapa queda debajo: lo traemos a la vista
+  if (scroll && window.matchMedia("(max-width: 1050px)").matches) {
+    mapBox.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 }
+
+document.querySelectorAll(".info-card[data-loc]").forEach(card => {
+  card.addEventListener("click", e => {
+    if (e.target.closest("a, button")) return;     // teléfono y «Cómo llegar» funcionan normal
+    showOnMap(card.dataset.loc, true);
+  });
+  card.addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === " ") && e.target === card) {
+      e.preventDefault();
+      showOnMap(card.dataset.loc, true);
+    }
+  });
+});
+
+showOnMap("main", false);
+
+document.getElementById("catarinaBtn").href =
+  "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(LOCATIONS.catarinaCoords);
 
 /* =====================================
    AÑO ACTUAL
@@ -929,6 +1041,24 @@ document.querySelectorAll(".social-card").forEach(card => {
     if (e.target.closest("a, button")) return;      // el botón/enlace ya funciona solo
     const link = card.querySelector("a.visit-btn");
     if (link && link.getAttribute("href") && link.getAttribute("href") !== "#") link.click();
+  });
+});
+
+/* =====================================
+   LOGOS DE PAGO: ANIMACIÓN AL HACER CLIC
+===================================== */
+document.querySelectorAll(".pay-btn").forEach(btn => {
+  const chip = btn.closest(".pay-chip");
+  btn.addEventListener("click", () => {
+    chip.classList.remove("is-anim");
+    void chip.offsetWidth;                 // reinicia la animación si se pulsa varias veces
+    chip.classList.add("is-anim");
+    const status = document.getElementById("payStatus");
+    status.textContent = "";
+    clearTimeout(chip._t);
+    clearTimeout(chip._s);
+    chip._s = setTimeout(() => { status.textContent = "Pago aprobado"; }, 1200);
+    chip._t = setTimeout(() => chip.classList.remove("is-anim"), 2500);
   });
 });
 
